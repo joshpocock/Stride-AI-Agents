@@ -1,1 +1,1 @@
-# Stride-AI-Agents
+# 🤖 Stride-AI-Agents
