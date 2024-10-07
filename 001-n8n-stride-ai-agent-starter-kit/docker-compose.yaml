@@ -79,6 +79,8 @@ services:
         echo "Database is ready. Starting import..."
         n8n import:credentials --separate --input=/backup/credentials || true
         n8n import:workflow --separate --input=/backup/workflows || true
+        mkdir -p /home/node/status
+        chown -R node:node /home/node/status
         touch /home/node/status/import_done
         exit 0
     volumes:
