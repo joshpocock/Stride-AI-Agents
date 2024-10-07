@@ -5,7 +5,8 @@ volumes:
   postgres_storage:
   ollama_storage:
   qdrant_storage:
-  status_volume:
+  # Remove the status_volume since it's no longer needed
+  # status_volume:
 
 networks:
   demo:
@@ -79,13 +80,11 @@ services:
         echo "Database is ready. Starting import..."
         n8n import:credentials --separate --input=/backup/credentials || true
         n8n import:workflow --separate --input=/backup/workflows || true
-        mkdir -p /home/node/status
-        chown -R node:node /home/node/status
-        touch /home/node/status/import_done
+        touch /home/node/.n8n/import_done
         exit 0
     volumes:
       - ./n8n/backup:/backup
-      - status_volume:/home/node/status
+      - n8n_storage:/home/node/.n8n
     depends_on:
       postgres:
         condition: service_healthy
@@ -100,7 +99,6 @@ services:
       - n8n_storage:/home/node/.n8n
       - ./n8n/backup:/backup
       - ./shared:/data/shared
-      - status_volume:/home/node/status
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,7 +107,7 @@ services:
     command: >
       /bin/sh -c "
         echo 'Waiting for dependencies...'
-        while ! nc -z postgres 5432 || [ ! -f /home/node/status/import_done ]; do
+        while ! nc -z postgres 5432 || [ ! -f /home/node/.n8n/import_done ]; do
           sleep 1
         done
         echo 'Dependencies are ready. Starting n8n...'
