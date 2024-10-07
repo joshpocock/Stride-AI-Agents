@@ -5,6 +5,7 @@ volumes:
   postgres_storage:
   ollama_storage:
   qdrant_storage:
+  status_volume:
 
 networks:
   demo:
@@ -66,6 +67,7 @@ services:
   n8n-import:
     <<: *service-n8n
     container_name: n8n-import
+    restart: "no"  # Ensure this container doesn't restart after completion
     entrypoint: /bin/sh
     command:
       - "-c"
@@ -75,12 +77,13 @@ services:
           sleep 1
         done
         echo "Database is ready. Starting import..."
-        n8n import:credentials --separate --input=/backup/credentials
-        n8n import:workflow --separate --input=/backup/workflows
-        touch /tmp/import_done
+        n8n import:credentials --separate --input=/backup/credentials || true
+        n8n import:workflow --separate --input=/backup/workflows || true
+        touch /status/import_done
+        exit 0
     volumes:
       - ./n8n/backup:/backup
-      - /tmp:/tmp
+      - status_volume:/status
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,7 +98,7 @@ services:
       - n8n_storage:/home/node/.n8n
       - ./n8n/backup:/backup
       - ./shared:/data/shared
-      - /tmp:/tmp
+      - status_volume:/status
     depends_on:
       postgres:
         condition: service_healthy
@@ -104,7 +107,7 @@ services:
     command: >
       /bin/sh -c "
         echo 'Waiting for dependencies...'
-        while ! nc -z postgres 5432 || [ ! -f /tmp/import_done ]; do
+        while ! nc -z postgres 5432 || [ ! -f /status/import_done ]; do
           sleep 1
         done
         echo 'Dependencies are ready. Starting n8n...'
