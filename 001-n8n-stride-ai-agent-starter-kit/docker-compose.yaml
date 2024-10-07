@@ -1,10 +1,14 @@
+version: '3.8'
+
 volumes:
   n8n_storage:
   postgres_storage:
   ollama_storage:
   qdrant_storage:
+
 networks:
   demo:
+
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
   networks: ['demo']
@@ -18,8 +22,10 @@ x-n8n: &service-n8n
     - N8N_PERSONALIZATION_ENABLED=false
     - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
     - N8N_USER_MANAGEMENT_JWT_SECRET=${N8N_USER_MANAGEMENT_JWT_SECRET}
-  links:
-    - postgres
+  depends_on:
+    postgres:
+      condition: service_healthy
+
 x-ollama: &service-ollama
   image: ollama/ollama:latest
   container_name: ollama
@@ -29,6 +35,7 @@ x-ollama: &service-ollama
     - 11434:11434
   volumes:
     - ollama_storage:/root/.ollama
+
 x-init-ollama: &init-ollama
   image: ollama/ollama:latest
   networks: ['demo']
@@ -39,6 +46,7 @@ x-init-ollama: &init-ollama
   command:
     - "-c"
     - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull llama3.1"
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -51,22 +59,31 @@ services:
     volumes:
       - postgres_storage:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1'"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
+
   n8n-import:
     <<: *service-n8n
     container_name: n8n-import
     entrypoint: /bin/sh
     command:
       - "-c"
-      - "n8n import:credentials --separate --input=/backup/credentials && n8n import:workflow --separate --input=/backup/workflows"
+      - |
+        echo "Waiting for database to be ready..."
+        while ! nc -z postgres 5432; do
+          sleep 1
+        done
+        echo "Database is ready. Starting import..."
+        n8n import:credentials --separate --input=/backup/credentials
+        n8n import:workflow --separate --input=/backup/workflows
     volumes:
       - ./n8n/backup:/backup
     depends_on:
       postgres:
         condition: service_healthy
+
   n8n:
     <<: *service-n8n
     container_name: n8n
@@ -82,6 +99,13 @@ services:
         condition: service_healthy
       n8n-import:
         condition: service_completed_successfully
+    command: >
+      /bin/sh -c "
+        echo 'Waiting for database and import to be ready...'
+        sleep 10
+        npm start
+      "
+
   qdrant:
     image: qdrant/qdrant
     container_name: qdrant
@@ -91,9 +115,11 @@ services:
       - 6333:6333
     volumes:
       - qdrant_storage:/qdrant/storage
+
   ollama-cpu:
     profiles: ["cpu"]
     <<: *service-ollama
+
   ollama-gpu:
     profiles: ["gpu-nvidia"]
     <<: *service-ollama
@@ -104,11 +130,13 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+
   ollama-pull-llama-cpu:
     profiles: ["cpu"]
     <<: *init-ollama
     depends_on:
       - ollama-cpu
+
   ollama-pull-llama-gpu:
     profiles: ["gpu-nvidia"]
     <<: *init-ollama
