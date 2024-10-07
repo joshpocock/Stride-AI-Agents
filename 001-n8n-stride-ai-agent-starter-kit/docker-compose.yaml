@@ -28,7 +28,6 @@ x-n8n: &service-n8n
 
 x-ollama: &service-ollama
   image: ollama/ollama:latest
-  container_name: ollama
   networks: ['demo']
   restart: unless-stopped
   ports:
@@ -39,7 +38,6 @@ x-ollama: &service-ollama
 x-init-ollama: &init-ollama
   image: ollama/ollama:latest
   networks: ['demo']
-  container_name: ollama-pull-llama
   volumes:
     - ollama_storage:/root/.ollama
   entrypoint: /bin/sh
@@ -59,10 +57,11 @@ services:
     volumes:
       - postgres_storage:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1'"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   n8n-import:
     <<: *service-n8n
@@ -78,8 +77,10 @@ services:
         echo "Database is ready. Starting import..."
         n8n import:credentials --separate --input=/backup/credentials
         n8n import:workflow --separate --input=/backup/workflows
+        touch /tmp/import_done
     volumes:
       - ./n8n/backup:/backup
+      - /tmp:/tmp
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,6 +95,7 @@ services:
       - n8n_storage:/home/node/.n8n
       - ./n8n/backup:/backup
       - ./shared:/data/shared
+      - /tmp:/tmp
     depends_on:
       postgres:
         condition: service_healthy
@@ -101,8 +103,12 @@ services:
         condition: service_completed_successfully
     command: >
       /bin/sh -c "
-        echo 'Waiting for database and import to be ready...'
-        sleep 10
+        echo 'Waiting for dependencies...'
+        while ! nc -z postgres 5432 || [ ! -f /tmp/import_done ]; do
+          sleep 1
+        done
+        echo 'Dependencies are ready. Starting n8n...'
+        sleep 5
         npm start
       "
 
@@ -119,10 +125,12 @@ services:
   ollama-cpu:
     profiles: ["cpu"]
     <<: *service-ollama
+    container_name: ollama-cpu
 
   ollama-gpu:
     profiles: ["gpu-nvidia"]
     <<: *service-ollama
+    container_name: ollama-gpu
     deploy:
       resources:
         reservations:
@@ -134,11 +142,13 @@ services:
   ollama-pull-llama-cpu:
     profiles: ["cpu"]
     <<: *init-ollama
+    container_name: ollama-pull-llama-cpu
     depends_on:
       - ollama-cpu
 
   ollama-pull-llama-gpu:
     profiles: ["gpu-nvidia"]
     <<: *init-ollama
+    container_name: ollama-pull-llama-gpu
     depends_on:
       - ollama-gpu
