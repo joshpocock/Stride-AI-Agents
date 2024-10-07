@@ -5,8 +5,6 @@ volumes:
   postgres_storage:
   ollama_storage:
   qdrant_storage:
-  # Remove the status_volume since it's no longer needed
-  # status_volume:
 
 networks:
   demo:
@@ -104,8 +102,10 @@ services:
         condition: service_healthy
       n8n-import:
         condition: service_completed_successfully
-    command: >
-      /bin/sh -c "
+    entrypoint: /bin/sh
+    command:
+      - "-c"
+      - |
         echo 'Waiting for dependencies...'
         while ! nc -z postgres 5432 || [ ! -f /home/node/.n8n/import_done ]; do
           sleep 1
@@ -113,7 +113,6 @@ services:
         echo 'Dependencies are ready. Starting n8n...'
         sleep 5
         npm start
-      "
 
   qdrant:
     image: qdrant/qdrant
