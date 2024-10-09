@@ -1,15 +1,11 @@
 version: '3.8'
-
 volumes:
   n8n_storage:
   postgres_storage:
   ollama_storage:
   qdrant_storage:
-  # No need for status_volume anymore
-
 networks:
   demo:
-
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
   networks: ['demo']
@@ -26,7 +22,6 @@ x-n8n: &service-n8n
   depends_on:
     postgres:
       condition: service_healthy
-
 x-ollama: &service-ollama
   image: ollama/ollama:latest
   networks: ['demo']
@@ -35,17 +30,6 @@ x-ollama: &service-ollama
     - 11434:11434
   volumes:
     - ollama_storage:/root/.ollama
-
-x-init-ollama: &init-ollama
-  image: ollama/ollama:latest
-  networks: ['demo']
-  volumes:
-    - ollama_storage:/root/.ollama
-  entrypoint: /bin/sh
-  command:
-    - "-c"
-    - "sleep 3; OLLAMA_HOST=ollama:11434 ollama pull llama3.1; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text"
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -65,7 +49,6 @@ services:
       start_period: 30s
     ports:
       - "5433:5432"
-
   n8n-import:
     <<: *service-n8n
     container_name: n8n-import
@@ -89,7 +72,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
   n8n:
     <<: *service-n8n
     container_name: n8n
@@ -116,7 +98,6 @@ services:
         echo 'Dependencies are ready. Starting n8n...'
         sleep 5
         n8n
-
   qdrant:
     image: qdrant/qdrant
     container_name: qdrant
@@ -126,34 +107,17 @@ services:
       - 6333:6333
     volumes:
       - qdrant_storage:/qdrant/storage
-
-  ollama-cpu:
-    profiles: ["cpu"]
+  ollama:
     <<: *service-ollama
-    container_name: ollama-cpu
-
-  ollama-gpu:
-    profiles: ["gpu-nvidia"]
-    <<: *service-ollama
-    container_name: ollama-gpu
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-  ollama-pull-llama-cpu:
-    profiles: ["cpu"]
-    <<: *init-ollama
-    container_name: ollama-pull-llama-cpu
+    container_name: ollama
+  ollama-init:
+    image: ollama/ollama:latest
+    networks: ['demo']
+    volumes:
+      - ollama_storage:/root/.ollama
+    entrypoint: /bin/sh
+    command:
+      - "-c"
+      - "sleep 10; OLLAMA_HOST=ollama:11434 ollama pull llama3.1; OLLAMA_HOST=ollama:11434 ollama pull nomic-embed-text"
     depends_on:
-      - ollama-cpu
-
-  ollama-pull-llama-gpu:
-    profiles: ["gpu-nvidia"]
-    <<: *init-ollama
-    container_name: ollama-pull-llama-gpu
-    depends_on:
-      - ollama-gpu
+      - ollama
