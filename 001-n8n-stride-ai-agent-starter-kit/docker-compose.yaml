@@ -114,8 +114,18 @@ services:
     command:
       - "-c"
       - |
+        echo 'Starting Ollama service...'
         ollama serve &
+        OLLAMA_PID=$!
+        echo 'Ollama service started.'
+        
+        # Keep the container running
         while true; do
+          if ! kill -0 $OLLAMA_PID 2>/dev/null; then
+            echo 'Ollama service stopped. Restarting...'
+            ollama serve &
+            OLLAMA_PID=$!
+          fi
           sleep 30
         done
   ollama-init:
