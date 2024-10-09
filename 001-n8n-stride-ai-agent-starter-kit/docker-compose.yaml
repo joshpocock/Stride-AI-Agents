@@ -110,6 +110,12 @@ services:
   ollama:
     <<: *service-ollama
     container_name: ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      ollama serve &
+      OLLAMA_PID=$!
+      trap "kill $OLLAMA_PID" SIGTERM
+      while true; do sleep 1 & wait $!; done
   ollama-init:
     image: ollama/ollama:latest
     networks: ['demo']
