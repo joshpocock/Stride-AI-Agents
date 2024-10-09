@@ -110,12 +110,14 @@ services:
   ollama:
     <<: *service-ollama
     container_name: ollama
-  ollama-debug:
-    <<: *service-ollama
-    container_name: ollama-debug
-    entrypoint: ["/bin/sh"]
-    command: ["-c", "while true; do sleep 1000; done"]
-    profiles: ["debug"]
+    entrypoint: /bin/sh
+    command:
+      - "-c"
+      - |
+        ollama serve &
+        while true; do
+          sleep 30
+        done
   ollama-init:
     image: ollama/ollama:latest
     networks: ['demo']
