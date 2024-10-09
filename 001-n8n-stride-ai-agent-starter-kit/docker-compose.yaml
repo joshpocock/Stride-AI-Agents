@@ -110,6 +110,8 @@ services:
   ollama:
     <<: *service-ollama
     container_name: ollama
+    tty: true               # Enables interactive terminal
+    stdin_open: true        # Keeps stdin open for interaction
     entrypoint: /bin/sh
     command:
       - "-c"
