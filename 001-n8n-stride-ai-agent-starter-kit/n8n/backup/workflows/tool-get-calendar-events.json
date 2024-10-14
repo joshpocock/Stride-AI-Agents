@@ -1,7 +1,5 @@
 {
-    "meta": {
-      "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
-    },
+    "name": "🛠️ Get Calendar Events",
     "nodes": [
       {
         "parameters": {
@@ -17,26 +15,12 @@
           },
           "options": {}
         },
-        "id": "30be96bd-4c61-4531-ba4f-cddaacf2ec9a",
+        "id": "129d9366-860e-4283-b2c6-3f835e2ad28e",
         "name": "Edit Fields1",
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          1020,
-          360
-        ]
-      },
-      {
-        "parameters": {
-          "aggregate": "aggregateAllItemData",
-          "options": {}
-        },
-        "id": "e3f3a563-b974-4ad2-8c02-a4c69c4296f4",
-        "name": "Aggregate1",
-        "type": "n8n-nodes-base.aggregate",
-        "typeVersion": 1,
-        "position": [
-          840,
+          1040,
           360
         ]
       },
@@ -54,12 +38,12 @@
             "timeMax": "={{ $json.query.end_time }}"
           }
         },
-        "id": "61586f7d-3e9b-4372-a3a1-a1ca6af68a03",
+        "id": "b44277b0-53db-4b29-b638-c640498b81f3",
         "name": "Google Calendar3",
         "type": "n8n-nodes-base.googleCalendar",
         "typeVersion": 1.1,
         "position": [
-          660,
+          620,
           360
         ],
         "credentials": {
@@ -70,13 +54,16 @@
         }
       },
       {
-        "parameters": {},
-        "id": "5cd2b9b3-6f36-4b2f-8776-f1175e2e659a",
-        "name": "Execute Workflow Trigger",
-        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "id": "6a099b51-fb30-41f4-a240-7148ab925510",
+        "name": "Aggregate1",
+        "type": "n8n-nodes-base.aggregate",
         "typeVersion": 1,
         "position": [
-          480,
+          840,
           360
         ]
       },
@@ -84,7 +71,7 @@
         "parameters": {
           "content": "## 🛠️ Get Calendar Events",
           "height": 258.3606557377049,
-          "width": 748.4847775175649,
+          "width": 876.4847775175649,
           "color": 3
         },
         "id": "6556d20f-26be-45fc-94a6-fee0a82fd0bf",
@@ -92,28 +79,40 @@
         "type": "n8n-nodes-base.stickyNote",
         "typeVersion": 1,
         "position": [
-          437,
+          363,
           280
+        ]
+      },
+      {
+        "parameters": {},
+        "id": "5cd2b9b3-6f36-4b2f-8776-f1175e2e659a",
+        "name": "Execute Workflow Trigger",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [
+          420,
+          360
         ]
       }
     ],
+    "pinData": {},
     "connections": {
-      "Aggregate1": {
+      "Google Calendar3": {
         "main": [
           [
             {
-              "node": "Edit Fields1",
+              "node": "Aggregate1",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Google Calendar3": {
+      "Aggregate1": {
         "main": [
           [
             {
-              "node": "Aggregate1",
+              "node": "Edit Fields1",
               "type": "main",
               "index": 0
             }
@@ -132,5 +131,15 @@
         ]
       }
     },
-    "pinData": {}
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "e8882f2c-c343-4dde-b913-6b41dbc30574",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+    },
+    "id": "MC8jLA5epffujdov",
+    "tags": []
   }

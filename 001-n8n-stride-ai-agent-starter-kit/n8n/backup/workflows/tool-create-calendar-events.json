@@ -1,7 +1,5 @@
 {
-  "meta": {
-    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
-  },
+  "name": "🛠️ Create Calendar Event",
   "nodes": [
     {
       "parameters": {},
@@ -107,18 +105,8 @@
       }
     }
   ],
+  "pinData": {},
   "connections": {
-    "Execute Workflow Trigger": {
-      "main": [
-        [
-          {
-            "node": "Google Calendar",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Aggregate": {
       "main": [
         [
@@ -140,7 +128,28 @@
           }
         ]
       ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {}
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fed00384-f0e1-4353-ab8e-71fe0c76fb15",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "j920iQwLYrOzsStd",
+  "tags": []
 }

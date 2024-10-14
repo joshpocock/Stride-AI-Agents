@@ -118,8 +118,8 @@
       },
       {
         "parameters": {
-          "name": "data",
-          "description": "Returns documents related to AI questions, rag, prompting, etc."
+          "name": "documents",
+          "description": "Returns info related to AI questions, rag, prompting, etc."
         },
         "id": "85ecd0fc-ea65-4e38-ac65-cdc1828b3ba0",
         "name": "Vector Store Tool",
@@ -129,31 +129,6 @@
           1520,
           740
         ]
-      },
-      {
-        "parameters": {
-          "qdrantCollection": {
-            "__rl": true,
-            "value": "documents",
-            "mode": "list",
-            "cachedResultName": "documents"
-          },
-          "options": {}
-        },
-        "id": "5ca22bd4-6d2c-4c53-b9e9-bfa88425390b",
-        "name": "Qdrant Vector Store",
-        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
-        "typeVersion": 1,
-        "position": [
-          1360,
-          960
-        ],
-        "credentials": {
-          "qdrantApi": {
-            "id": "XYrkAwpSWjf60Pxc",
-            "name": "QdrantApi account"
-          }
-        }
       },
       {
         "parameters": {
@@ -197,7 +172,7 @@
       {
         "parameters": {
           "name": "get_calendar_events",
-          "description": "=Call this tool to get the current calendar items\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events, and managing all aspects of the calendar.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Nairobi time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
+          "description": "=Call this tool to get the current calendar items. Only when user asks for availability. Not needed for booking events unless specified\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events, and managing all aspects of the calendar.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Eastern Standard time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
           "workflowId": {
             "__rl": true,
             "value": "MC8jLA5epffujdov",
@@ -219,7 +194,7 @@
       {
         "parameters": {
           "name": "create_calendar_event",
-          "description": "Call this workflow to create new calendar bookings/events\n\nDon't forget all the fields including the about field. If it's not specified what the meeting is about then just put 'Meeting' by default.\n\n{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\",\n\"attendees\":\"josh@executivestride.com\",\n    \"about\": \"short description\"   \n}\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events, and managing all aspects of the calendar.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Nairobi time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
+          "description": "Call this workflow to create new calendar bookings/events\n\nDon't forget all the fields including the about field. If it's not specified what the meeting is about then just put 'Meeting' by default.\n\n{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\",\n\"attendees\":\"josh@executivestride.com\",\n    \"about\": \"short description\"   \n}\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events, and managing all aspects of the calendar.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Eastern Standard time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
           "workflowId": {
             "__rl": true,
             "value": "j920iQwLYrOzsStd",
@@ -250,8 +225,8 @@
         "type": "n8n-nodes-base.stickyNote",
         "typeVersion": 1,
         "position": [
-          837.2362329483899,
-          220.46212196968156
+          840,
+          220
         ]
       },
       {
@@ -268,23 +243,6 @@
         "position": [
           300,
           220
-        ]
-      },
-      {
-        "parameters": {
-          "promptType": "define",
-          "text": "=You are a conversational agent. A personal assistant. Please answer users questions or do users tasks or requests. The user said this: {{ $json.blocks[0].elements[0].elements[1].text }}\n\nIf someone asks to book a meeting for a certain time then call the create_calendar_event tool.\n\nIf someone asks to check the availibility for a certain time or what meetings are booked for a certain time then call the get_calendar_events tool.",
-          "options": {
-            "systemMessage": "You are a helpful assistant"
-          }
-        },
-        "id": "9aa9b1c4-5aa8-443f-adc6-77fc45bd7884",
-        "name": "AI Agent",
-        "type": "@n8n/n8n-nodes-langchain.agent",
-        "typeVersion": 1.6,
-        "position": [
-          1360,
-          440
         ]
       },
       {
@@ -447,6 +405,78 @@
       },
       {
         "parameters": {
+          "content": "## 📤 Data Upsert Into Vector Database\n**Ollama** embeddings + **Qdrant** vector DB",
+          "height": 458.10062452315526,
+          "width": 1242.1194911539692,
+          "color": 4
+        },
+        "id": "85407632-6618-4309-9acc-274dea6ed8ac",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          840,
+          1260
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "1c85d9f0-1b10-4b28-8542-bf3152c0c64c",
+        "name": "Chat",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          1000,
+          540
+        ],
+        "webhookId": "7f13e8c3-0ecb-4323-9797-18c03b2a2c61"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=You are a conversational agent. A personal assistant. Please answer users questions or do users tasks or requests. The user said this: {{ $json.blocks[0].elements[0].elements[1].text }}\n\nIf someone asks to book a meeting for a certain time then call the create_calendar_event tool.\n\nIf someone asks to check the availibility for a certain time or what meetings are booked for a certain time then call the get_calendar_events tool.",
+          "options": {
+            "systemMessage": "You are a helpful assistant"
+          }
+        },
+        "id": "9aa9b1c4-5aa8-443f-adc6-77fc45bd7884",
+        "name": "AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.6,
+        "position": [
+          1360,
+          440
+        ]
+      },
+      {
+        "parameters": {
+          "qdrantCollection": {
+            "__rl": true,
+            "value": "documents",
+            "mode": "list",
+            "cachedResultName": "documents"
+          },
+          "options": {}
+        },
+        "id": "5ca22bd4-6d2c-4c53-b9e9-bfa88425390b",
+        "name": "Qdrant Vector Store",
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+        "typeVersion": 1,
+        "position": [
+          1360,
+          960
+        ],
+        "credentials": {
+          "qdrantApi": {
+            "id": "XYrkAwpSWjf60Pxc",
+            "name": "QdrantApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
           "code": {
             "execute": {
               "code": "const { QdrantVectorStore } = require(\"@langchain/qdrant\");\nconst { RecursiveCharacterTextSplitter } = require(\"langchain/text_splitter\");\n\n// Improved logging function\nconst log = (message, data) => {\n  console.log(JSON.stringify({ message, data }, null, 2));\n};\n\n// Helper function to safely access nested properties\nconst safeGet = (obj, path) => {\n  return path.split('.').reduce((acc, part) => acc && acc[part], obj);\n};\n\ntry {\n  // Get input data\n  const inputData = this.getInputData();\n  log(\"Raw input data\", inputData);\n\n  // Safely access fileId from the 'File ID' node\n  const fileId = safeGet($('File ID'), 'item.json.fileId');\n  log(\"FileId from 'File ID' node\", { fileId });\n\n  if (!fileId) {\n    throw new Error(\"Missing fileId\");\n  }\n\n  if (!inputData || !Array.isArray(inputData) || inputData.length === 0) {\n    throw new Error(\"Invalid input data structure\");\n  }\n\n  const fileContent = safeGet(inputData[0], 'json.data');\n  log(\"File content sample\", { contentSample: fileContent?.substring(0, 100) });\n\n  if (!fileContent) {\n    throw new Error(\"Missing file content\");\n  }\n\n  log(\"File info\", { fileId, contentLength: fileContent.length });\n\n  // Get embedding model from input\n  const embeddingsInput = await this.getInputConnectionData('ai_embedding', 0);\n  log(\"Embedding input received\", { \n    received: !!embeddingsInput, \n    type: typeof embeddingsInput,\n    isFunction: typeof embeddingsInput === 'function',\n    hasEmbedDocuments: embeddingsInput && typeof embeddingsInput.embedDocuments === 'function'\n  });\n\n  if (!embeddingsInput) {\n    throw new Error(\"Missing embedding model input. Check the 'ai_embedding' connection.\");\n  }\n\n  // Initialize Qdrant vector store\n  const vectorStore = await QdrantVectorStore.fromExistingCollection(\n    embeddingsInput,\n    {\n      url: \"http://qdrant:6333\",\n      collectionName: \"documents\",\n    }\n  );\n  log(\"Qdrant vector store initialized successfully\");\n\n  // Delete existing vectors with the same file_id\n  const filter = {\n    must: [\n      {\n        key: \"metadata.file_id\",\n        match: {\n          value: fileId,\n        },\n      },\n    ],\n  };\n\n  log(\"Deleting existing vectors\", { fileId, filter });\n  await vectorStore.client.delete(\"documents\", { filter });\n  log(\"Existing vectors deleted successfully\");\n\n  // Split text\n  const splitter = new RecursiveCharacterTextSplitter({\n    chunkSize: 500,\n    chunkOverlap: 50,\n  });\n  const docs = await splitter.createDocuments([fileContent]);\n  log(\"Documents split\", { chunkCount: docs.length });\n\n  // Process documents\n  const processedDocs = docs.map((doc, idx) => {\n    return {\n      pageContent: doc.pageContent,\n      metadata: {\n        ...doc.metadata,\n        file_id: fileId,\n        chunk: idx,\n      },\n    };\n  });\n  log(\"Documents processed\", { sampleDoc: processedDocs[0] });\n\n  // Insert new documents\n  log(\"Starting insert process\", { docCount: processedDocs.length });\n  try {\n    await vectorStore.addDocuments(processedDocs);\n    log(\"Documents inserted to Qdrant successfully\");\n  } catch (insertError) {\n    log(\"Error during insert\", { errorMessage: insertError.message, stack: insertError.stack });\n    throw insertError;\n  }\n\n  // Prepare detailed output\n  const chunkSamples = processedDocs.slice(0, 5).map(doc => ({\n    content: doc.pageContent.substring(0, 100) + \"...\",\n    metadata: doc.metadata,\n  }));\n\n  return [{\n    json: {\n      file_id: fileId,\n      chunks_processed: processedDocs.length,\n      total_content_length: fileContent.length,\n      average_chunk_length: Math.round(processedDocs.reduce((sum, doc) => sum + doc.pageContent.length, 0) / processedDocs.length),\n      chunk_samples: chunkSamples\n    }\n  }];\n} catch (error) {\n  log(\"Error in Qdrant Insert\", { errorMessage: error.message, stack: error.stack });\n  throw error;\n}"
@@ -482,36 +512,6 @@
           1720,
           1400
         ]
-      },
-      {
-        "parameters": {
-          "content": "## 📤 Data Upsert Into Vector Database\n**Ollama** embeddings + **Qdrant** vector DB",
-          "height": 458.10062452315526,
-          "width": 1242.1194911539692,
-          "color": 4
-        },
-        "id": "85407632-6618-4309-9acc-274dea6ed8ac",
-        "name": "Sticky Note2",
-        "type": "n8n-nodes-base.stickyNote",
-        "typeVersion": 1,
-        "position": [
-          840,
-          1260
-        ]
-      },
-      {
-        "parameters": {
-          "options": {}
-        },
-        "id": "1c85d9f0-1b10-4b28-8542-bf3152c0c64c",
-        "name": "Chat",
-        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-        "typeVersion": 1.1,
-        "position": [
-          1000,
-          540
-        ],
-        "webhookId": "7f13e8c3-0ecb-4323-9797-18c03b2a2c61"
       }
     ],
     "pinData": {},
@@ -582,17 +582,6 @@
           ]
         ]
       },
-      "Qdrant Vector Store": {
-        "ai_vectorStore": [
-          [
-            {
-              "node": "Vector Store Tool",
-              "type": "ai_vectorStore",
-              "index": 0
-            }
-          ]
-        ]
-      },
       "Ollama Chat Model1": {
         "ai_languageModel": [
           [
@@ -632,17 +621,6 @@
             {
               "node": "AI Agent",
               "type": "ai_tool",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "AI Agent": {
-        "main": [
-          [
-            {
-              "node": "Slack",
-              "type": "main",
               "index": 0
             }
           ]
@@ -716,10 +694,26 @@
       },
       "Chat": {
         "main": [
+          []
+        ]
+      },
+      "AI Agent": {
+        "main": [
           [
             {
-              "node": "AI Agent",
+              "node": "Slack",
               "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Qdrant Vector Store": {
+        "ai_vectorStore": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_vectorStore",
               "index": 0
             }
           ]
@@ -730,7 +724,7 @@
     "settings": {
       "executionOrder": "v1"
     },
-    "versionId": "d1f81f73-cdec-4c12-9eae-df105b457307",
+    "versionId": "27f3b61f-513e-4f6b-be0b-ef44de3e2543",
     "meta": {
       "templateCredsSetupCompleted": true,
       "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
