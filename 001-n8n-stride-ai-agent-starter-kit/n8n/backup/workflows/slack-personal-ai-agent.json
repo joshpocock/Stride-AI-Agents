@@ -1,0 +1,740 @@
+{
+    "name": "🤖 Slack RAG AI Agent (Ollama)",
+    "nodes": [
+      {
+        "parameters": {
+          "trigger": [
+            "app_mention"
+          ],
+          "watchWorkspace": true,
+          "options": {}
+        },
+        "id": "1c5549f8-6474-4650-9a52-7d36c9c10331",
+        "name": "Slack Trigger",
+        "type": "n8n-nodes-base.slackTrigger",
+        "typeVersion": 1,
+        "position": [
+          1000,
+          360
+        ],
+        "webhookId": "61d8a055-d9f1-4335-a950-cf33f66698d7",
+        "credentials": {
+          "slackApi": {
+            "id": "VAEbdKWRJU3m4kkD",
+            "name": "Stride AI Agent"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $('Slack Trigger').item.json.client_msg_id }}"
+        },
+        "id": "1edb5626-b323-41cf-bb36-8d215fa5ecf6",
+        "name": "Postgres Chat Memory",
+        "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+        "typeVersion": 1.1,
+        "position": [
+          1180,
+          740
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "97tLesw4z3RMI6Rp",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "llama3.1:latest",
+          "options": {}
+        },
+        "id": "8fbff081-3b0e-403d-84e0-43a322bc97c9",
+        "name": "Ollama Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          1060,
+          740
+        ],
+        "credentials": {
+          "ollamaApi": {
+            "id": "CCJJtTGg3wobGFxW",
+            "name": "Ollama account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "id": "564e6c18-5f3e-4ebe-857a-90b9287c8cbb",
+        "name": "Calculator",
+        "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+        "typeVersion": 1,
+        "position": [
+          1280,
+          740
+        ]
+      },
+      {
+        "parameters": {},
+        "id": "b75e12d8-010d-4538-b91f-35bd283350db",
+        "name": "Wikipedia",
+        "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+        "typeVersion": 1,
+        "position": [
+          1400,
+          740
+        ]
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C07RWF3105N",
+            "mode": "list",
+            "cachedResultName": "ai-agent"
+          },
+          "text": "={{ $json.output }}",
+          "otherOptions": {
+            "includeLinkToWorkflow": false
+          }
+        },
+        "id": "9398ca7c-3b73-401b-b440-bd7b66d3a054",
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.2,
+        "position": [
+          1780,
+          440
+        ],
+        "credentials": {
+          "slackApi": {
+            "id": "VAEbdKWRJU3m4kkD",
+            "name": "Stride AI Agent"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "data",
+          "description": "Returns documents related to AI questions, rag, prompting, etc."
+        },
+        "id": "85ecd0fc-ea65-4e38-ac65-cdc1828b3ba0",
+        "name": "Vector Store Tool",
+        "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+        "typeVersion": 1,
+        "position": [
+          1520,
+          740
+        ]
+      },
+      {
+        "parameters": {
+          "qdrantCollection": {
+            "__rl": true,
+            "value": "documents",
+            "mode": "list",
+            "cachedResultName": "documents"
+          },
+          "options": {}
+        },
+        "id": "5ca22bd4-6d2c-4c53-b9e9-bfa88425390b",
+        "name": "Qdrant Vector Store",
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+        "typeVersion": 1,
+        "position": [
+          1360,
+          960
+        ],
+        "credentials": {
+          "qdrantApi": {
+            "id": "XYrkAwpSWjf60Pxc",
+            "name": "QdrantApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "llama3.1:latest",
+          "options": {}
+        },
+        "id": "0d4e811e-b343-46ca-b881-ac39f33add2d",
+        "name": "Ollama Chat Model1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+        "typeVersion": 1,
+        "position": [
+          1640,
+          940
+        ],
+        "credentials": {
+          "ollamaApi": {
+            "id": "CCJJtTGg3wobGFxW",
+            "name": "Ollama account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "nomic-embed-text:latest"
+        },
+        "id": "6c30939c-78ac-461d-8c36-ff16c6a20431",
+        "name": "Embeddings Ollama",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+        "typeVersion": 1,
+        "position": [
+          1340,
+          1120
+        ],
+        "credentials": {
+          "ollamaApi": {
+            "id": "CCJJtTGg3wobGFxW",
+            "name": "Ollama account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "get_calendar_events",
+          "description": "=Call this tool to get the current calendar items\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events, and managing all aspects of the calendar.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Nairobi time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
+          "workflowId": {
+            "__rl": true,
+            "value": "MC8jLA5epffujdov",
+            "mode": "list",
+            "cachedResultName": "🛠️ Get Calendar Events"
+          },
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\"\n   \n}"
+        },
+        "id": "5f41b3b7-3cd4-4a9e-9bee-2a4c78711b14",
+        "name": "🛠️ Get Calendar Events",
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          1780,
+          740
+        ]
+      },
+      {
+        "parameters": {
+          "name": "create_calendar_event",
+          "description": "Call this workflow to create new calendar bookings/events\n\nDon't forget all the fields including the about field. If it's not specified what the meeting is about then just put 'Meeting' by default.\n\n{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\",\n\"attendees\":\"josh@executivestride.com\",\n    \"about\": \"short description\"   \n}\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events, and managing all aspects of the calendar.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Nairobi time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
+          "workflowId": {
+            "__rl": true,
+            "value": "j920iQwLYrOzsStd",
+            "mode": "list",
+            "cachedResultName": "🛠️ Create Calendar Event"
+          },
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\",\n\"attendees\":\"josh@executivestride.com\",\n    \"about\": \"short description\"   \n}"
+        },
+        "id": "7576ec01-7a1d-4fe3-9fef-2c232c165fa7",
+        "name": "🛠️ Book Calendar Event",
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          1920,
+          740
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## 💬 Query & Retrieval AI Agent\n**Ollama** for chat model (can be switched out for any model)\n**Postgres** for chat memory (can be switched)",
+          "height": 1037.0770279184615,
+          "width": 1241.2562056280162,
+          "color": 6
+        },
+        "id": "a67d0e3f-58ae-4e36-8277-2631a2cf0a86",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          837.2362329483899,
+          220.46212196968156
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## 🤖 Slack RAG AI Agent (Ollama)\n\nThis is an AI RAGE agent that can be used as a personal assistant to answer questions on your database data and automate some of your basic calendar scheduling.\n\n## How does it work\n-1. Ask questions on trained data that is upserted into vector db\n-2. Get calendar availability\n-3. Ask AI to create events in your n8n and send updates to attendees\n\n### Start here: Github Repo + Step-by Step YouTube Tutorial :star:\n[![Building an AI Crew to Analyze Financial Data with CrewAI and n8n](https://i.imgur.com/M766mMR.png)](https://github.com/joshpocock/Stride-AI-Agents/)\n",
+          "height": 609.1416650119496,
+          "width": 485.205040369426,
+          "color": 3
+        },
+        "id": "4455ea6d-f2bc-4971-8622-33458db2afef",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          300,
+          220
+        ]
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=You are a conversational agent. A personal assistant. Please answer users questions or do users tasks or requests. The user said this: {{ $json.blocks[0].elements[0].elements[1].text }}\n\nIf someone asks to book a meeting for a certain time then call the create_calendar_event tool.\n\nIf someone asks to check the availibility for a certain time or what meetings are booked for a certain time then call the get_calendar_events tool.",
+          "options": {
+            "systemMessage": "You are a helpful assistant"
+          }
+        },
+        "id": "9aa9b1c4-5aa8-443f-adc6-77fc45bd7884",
+        "name": "AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.6,
+        "position": [
+          1360,
+          440
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.fileId }}",
+            "mode": "id"
+          },
+          "options": {
+            "googleFileConversion": {
+              "conversion": {
+                "docsToFormat": "text/plain"
+              }
+            }
+          }
+        },
+        "id": "9fbdd6dc-1e45-47a8-8299-89132abf5397",
+        "name": "Google Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1320,
+          1400
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "aeyjcId29YSOUVZC",
+            "name": "Josh"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8c90b441-eb84-4728-a936-a2ca3a6e9e35",
+                "name": "fileId",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "e8d2b3ef-cd0b-407b-b7c1-a1ffcb191287",
+        "name": "File ID",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1120,
+          1400
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "text",
+          "binaryPropertyName": "=data",
+          "options": {}
+        },
+        "id": "98fba8b6-2a00-4589-9c2d-a976b3462980",
+        "name": "Doc",
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          1520,
+          1400
+        ]
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1Td5L65JJzDu4UilssZykBnB7pUvJdgp8",
+            "mode": "list",
+            "cachedResultName": "RAG",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1Td5L65JJzDu4UilssZykBnB7pUvJdgp8"
+          },
+          "event": "fileCreated",
+          "options": {}
+        },
+        "id": "d44b748c-4282-4b0e-a640-dc096e1dee42",
+        "name": "Created File",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          900,
+          1340
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "aeyjcId29YSOUVZC",
+            "name": "Josh"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1Td5L65JJzDu4UilssZykBnB7pUvJdgp8",
+            "mode": "list",
+            "cachedResultName": "RAG",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1Td5L65JJzDu4UilssZykBnB7pUvJdgp8"
+          },
+          "event": "fileUpdated",
+          "options": {}
+        },
+        "id": "ae54d155-abfd-4e93-bd34-9e4402cb0135",
+        "name": "Updated File",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          900,
+          1520
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "aeyjcId29YSOUVZC",
+            "name": "Josh"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "nomic-embed-text:latest"
+        },
+        "id": "d57ad8dd-b040-4fd5-9779-b4cd84744586",
+        "name": "Embeddings Ollama1",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+        "typeVersion": 1,
+        "position": [
+          1740,
+          1580
+        ],
+        "credentials": {
+          "ollamaApi": {
+            "id": "CCJJtTGg3wobGFxW",
+            "name": "Ollama account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "code": {
+            "execute": {
+              "code": "const { QdrantVectorStore } = require(\"@langchain/qdrant\");\nconst { RecursiveCharacterTextSplitter } = require(\"langchain/text_splitter\");\n\n// Improved logging function\nconst log = (message, data) => {\n  console.log(JSON.stringify({ message, data }, null, 2));\n};\n\n// Helper function to safely access nested properties\nconst safeGet = (obj, path) => {\n  return path.split('.').reduce((acc, part) => acc && acc[part], obj);\n};\n\ntry {\n  // Get input data\n  const inputData = this.getInputData();\n  log(\"Raw input data\", inputData);\n\n  // Safely access fileId from the 'File ID' node\n  const fileId = safeGet($('File ID'), 'item.json.fileId');\n  log(\"FileId from 'File ID' node\", { fileId });\n\n  if (!fileId) {\n    throw new Error(\"Missing fileId\");\n  }\n\n  if (!inputData || !Array.isArray(inputData) || inputData.length === 0) {\n    throw new Error(\"Invalid input data structure\");\n  }\n\n  const fileContent = safeGet(inputData[0], 'json.data');\n  log(\"File content sample\", { contentSample: fileContent?.substring(0, 100) });\n\n  if (!fileContent) {\n    throw new Error(\"Missing file content\");\n  }\n\n  log(\"File info\", { fileId, contentLength: fileContent.length });\n\n  // Get embedding model from input\n  const embeddingsInput = await this.getInputConnectionData('ai_embedding', 0);\n  log(\"Embedding input received\", { \n    received: !!embeddingsInput, \n    type: typeof embeddingsInput,\n    isFunction: typeof embeddingsInput === 'function',\n    hasEmbedDocuments: embeddingsInput && typeof embeddingsInput.embedDocuments === 'function'\n  });\n\n  if (!embeddingsInput) {\n    throw new Error(\"Missing embedding model input. Check the 'ai_embedding' connection.\");\n  }\n\n  // Initialize Qdrant vector store\n  const vectorStore = await QdrantVectorStore.fromExistingCollection(\n    embeddingsInput,\n    {\n      url: \"http://qdrant:6333\",\n      collectionName: \"documents\",\n    }\n  );\n  log(\"Qdrant vector store initialized successfully\");\n\n  // Delete existing vectors with the same file_id\n  const filter = {\n    must: [\n      {\n        key: \"metadata.file_id\",\n        match: {\n          value: fileId,\n        },\n      },\n    ],\n  };\n\n  log(\"Deleting existing vectors\", { fileId, filter });\n  await vectorStore.client.delete(\"documents\", { filter });\n  log(\"Existing vectors deleted successfully\");\n\n  // Split text\n  const splitter = new RecursiveCharacterTextSplitter({\n    chunkSize: 500,\n    chunkOverlap: 50,\n  });\n  const docs = await splitter.createDocuments([fileContent]);\n  log(\"Documents split\", { chunkCount: docs.length });\n\n  // Process documents\n  const processedDocs = docs.map((doc, idx) => {\n    return {\n      pageContent: doc.pageContent,\n      metadata: {\n        ...doc.metadata,\n        file_id: fileId,\n        chunk: idx,\n      },\n    };\n  });\n  log(\"Documents processed\", { sampleDoc: processedDocs[0] });\n\n  // Insert new documents\n  log(\"Starting insert process\", { docCount: processedDocs.length });\n  try {\n    await vectorStore.addDocuments(processedDocs);\n    log(\"Documents inserted to Qdrant successfully\");\n  } catch (insertError) {\n    log(\"Error during insert\", { errorMessage: insertError.message, stack: insertError.stack });\n    throw insertError;\n  }\n\n  // Prepare detailed output\n  const chunkSamples = processedDocs.slice(0, 5).map(doc => ({\n    content: doc.pageContent.substring(0, 100) + \"...\",\n    metadata: doc.metadata,\n  }));\n\n  return [{\n    json: {\n      file_id: fileId,\n      chunks_processed: processedDocs.length,\n      total_content_length: fileContent.length,\n      average_chunk_length: Math.round(processedDocs.reduce((sum, doc) => sum + doc.pageContent.length, 0) / processedDocs.length),\n      chunk_samples: chunkSamples\n    }\n  }];\n} catch (error) {\n  log(\"Error in Qdrant Insert\", { errorMessage: error.message, stack: error.stack });\n  throw error;\n}"
+            }
+          },
+          "inputs": {
+            "input": [
+              {
+                "type": "main",
+                "maxConnections": 1,
+                "required": true
+              },
+              {
+                "type": "ai_embedding",
+                "maxConnections": 1,
+                "required": true
+              }
+            ]
+          },
+          "outputs": {
+            "output": [
+              {
+                "type": "main"
+              }
+            ]
+          }
+        },
+        "id": "4c1b236d-8539-4dd8-a07f-698b65c2cefc",
+        "name": "Qdrant Upsert Doc",
+        "type": "@n8n/n8n-nodes-langchain.code",
+        "typeVersion": 1,
+        "position": [
+          1720,
+          1400
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## 📤 Data Upsert Into Vector Database\n**Ollama** embeddings + **Qdrant** vector DB",
+          "height": 458.10062452315526,
+          "width": 1242.1194911539692,
+          "color": 4
+        },
+        "id": "85407632-6618-4309-9acc-274dea6ed8ac",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          840,
+          1260
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "1c85d9f0-1b10-4b28-8542-bf3152c0c64c",
+        "name": "Chat",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          1000,
+          540
+        ],
+        "webhookId": "7f13e8c3-0ecb-4323-9797-18c03b2a2c61"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Slack Trigger": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Postgres Chat Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculator": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wikipedia": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector Store Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Qdrant Vector Store": {
+        "ai_vectorStore": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_vectorStore",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings Ollama": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Qdrant Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🛠️ Get Calendar Events": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🛠️ Book Calendar Event": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "File ID": {
+        "main": [
+          [
+            {
+              "node": "Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Doc": {
+        "main": [
+          [
+            {
+              "node": "Qdrant Upsert Doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Created File": {
+        "main": [
+          [
+            {
+              "node": "File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Updated File": {
+        "main": [
+          [
+            {
+              "node": "File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings Ollama1": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Qdrant Upsert Doc",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Chat": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "d1f81f73-cdec-4c12-9eae-df105b457307",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+    },
+    "id": "iWK9l2RtP8KF4zeG",
+    "tags": []
+  }

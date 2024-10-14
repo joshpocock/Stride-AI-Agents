@@ -1,0 +1,747 @@
+{
+    "name": "🤖 Telegram RAG AI Agent (Pinecone)",
+    "nodes": [
+      {
+        "parameters": {
+          "updates": [
+            "message"
+          ],
+          "additionalFields": {}
+        },
+        "id": "dc7177df-fbe9-49eb-abea-0d7bfeeda394",
+        "name": "Telegram Trigger",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          320,
+          660
+        ],
+        "webhookId": "5cad8093-e16b-496d-8302-f9a3852b1651",
+        "credentials": {
+          "telegramApi": {
+            "id": "KiMfsLAmwfKDPyoO",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "documents",
+          "description": "Returns documents related to AI questions, rag, prompting, etc."
+        },
+        "id": "bfdc0a7d-9b1c-4f4d-9f61-2de766e6d2a2",
+        "name": "Vector Store Tool",
+        "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+        "typeVersion": 1,
+        "position": [
+          740,
+          940
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## 💬 Query & Retrieval AI Agent\n**OpenAI** for chat model (can be switched out for any model)\n**Postgres** for chat memory (can be switched)",
+          "height": 982.2133276689833,
+          "width": 1235.5569498510301,
+          "color": 6
+        },
+        "id": "ff01c26a-fb53-4ee6-842d-35a6e76d46e4",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          120,
+          517.4381575203163
+        ]
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $('Telegram Trigger').item.json.message.from.id }}"
+        },
+        "id": "d7f33790-62f3-4740-a342-6bb0ba8e6d06",
+        "name": "Postgres Chat Memory",
+        "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+        "typeVersion": 1.1,
+        "position": [
+          280,
+          940
+        ],
+        "credentials": {
+          "postgres": {
+            "id": "97tLesw4z3RMI6Rp",
+            "name": "Postgres account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.message.text }}",
+          "options": {}
+        },
+        "id": "7920a27c-0a71-4216-b67d-d15ddc202641",
+        "name": "AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.6,
+        "position": [
+          600,
+          660
+        ]
+      },
+      {
+        "parameters": {
+          "name": "create_calendar_event",
+          "description": "Call this workflow to create new calendar bookings\n\nDon't forget all the fields including the about field. If it's not specified what the meeting is about then just put 'Meeting' by default.\n\n{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\",\n\"attendees\":\"josh@executivestride.com\",\n    \"about\": \"short description\"   \n}\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Nairobi time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
+          "workflowId": {
+            "__rl": true,
+            "value": "j920iQwLYrOzsStd",
+            "mode": "list",
+            "cachedResultName": "🛠️ Create Calendar Event"
+          },
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\",\n\"attendees\":\"josh@executivestride.com\",\n    \"about\": \"short description\"   \n}"
+        },
+        "id": "a07006a6-8ee5-4188-b4a1-5dbd2ff9cc33",
+        "name": "🛠️ Book Calendar Event",
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          1200,
+          940
+        ]
+      },
+      {
+        "parameters": {
+          "name": "get_calendar_events",
+          "description": "=Call this tool to get the current calendar items\n\nYou are a helpful assistant. Your task is to generate a JSON query that retrieves calendar items to suggest the best available times for meetings.\n\nYou will provide the most suitable advice on availability, scheduling meetings, creating new events.\n\nKey details:\n- Default meeting duration is 30 minutes, which can be adjusted according to client requests.\n- You can provide an HTML link as the event link.\n- Current date and time: {{ $now.format('t cccc dd-MMMM yyyy') }}.\n- Availability is from 8 AM to 10 PM Nairobi time. If a meeting request falls outside these hours, kindly advise the requester to suggest a different time.\n\nbe short and concise",
+          "workflowId": {
+            "__rl": true,
+            "value": "MC8jLA5epffujdov",
+            "mode": "list",
+            "cachedResultName": "🛠️ Get Calendar Events"
+          },
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n\t\"start_time\": \"2024-08-13T00:00:00\",\n    \"end_time\": \"2024-08-13T00:00:00\"\n   \n}"
+        },
+        "id": "514f44c1-dca2-4721-b630-8c4b2045caf4",
+        "name": "🛠️ Get Calendar Events",
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          1060,
+          940
+        ]
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+          "text": "={{ $json.output }}",
+          "additionalFields": {}
+        },
+        "id": "f15f3f6a-7f5c-4a95-8fc3-ff3967d85222",
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          1040,
+          660
+        ],
+        "credentials": {
+          "telegramApi": {
+            "id": "KiMfsLAmwfKDPyoO",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "id": "f7dc28d3-1132-4970-9424-e648ecf7acca",
+        "name": "Calculator",
+        "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+        "typeVersion": 1,
+        "position": [
+          420,
+          940
+        ]
+      },
+      {
+        "parameters": {},
+        "id": "2ae0aae3-7f09-45fa-93a5-2cb3cd2928f3",
+        "name": "Wikipedia",
+        "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+        "typeVersion": 1,
+        "position": [
+          580,
+          940
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "id": "13078cdf-b753-4293-a605-bd81e1bbb5d5",
+        "name": "OpenAI Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          160,
+          940
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "cczuLgtfjpcKwH7I",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "id": "9b0e4d1b-ed8c-400c-bdfa-5c6cff5c24e8",
+        "name": "OpenAI Chat Model1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          920,
+          1120
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "cczuLgtfjpcKwH7I",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "3278d085-573d-469f-8602-ff58b4c12a24",
+        "name": "Embeddings OpenAI",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1,
+        "position": [
+          600,
+          1340
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "cczuLgtfjpcKwH7I",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## 🤖 Slack RAG AI Agent (Ollama)\n\nThis is an AI RAGE agent that can be used as a personal assistant to answer questions on your database data and automate some of your basic calendar scheduling.\n\n## How does it work\n-1. Ask questions on trained data that is upserted into vector db\n-2. Get calendar availability\n-3. Ask AI to create events in your n8n and send updates to attendees\n\n### Start here: Github Repo + Step-by Step YouTube Tutorial :star:\n[![Building an AI Crew to Analyze Financial Data with CrewAI and n8n](https://i.imgur.com/M766mMR.png)](https://github.com/joshpocock/Stride-AI-Agents/)\n",
+          "height": 609.1416650119496,
+          "width": 485.205040369426,
+          "color": 3
+        },
+        "id": "b29196cc-31da-4263-9456-a8968178e694",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -420,
+          520
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## 📤 Data Upsert Into Vector Database\n**OpenAI** embeddings + **Pinecone** vector DB\n",
+          "height": 632.8445157196984,
+          "width": 1242.1194911539692,
+          "color": 4
+        },
+        "id": "9b23bb4b-036e-4ab7-b66f-c14855c3776c",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          120,
+          1500
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "text",
+          "binaryPropertyName": "=data",
+          "options": {}
+        },
+        "id": "1837f3ba-0165-4b56-8900-11f4fcb98cea",
+        "name": "Doc",
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          800,
+          1640
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.fileId }}",
+            "mode": "id"
+          },
+          "options": {
+            "googleFileConversion": {
+              "conversion": {
+                "docsToFormat": "text/plain"
+              }
+            }
+          }
+        },
+        "id": "512588a5-4237-4706-9c23-b6e883425213",
+        "name": "Google Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          600,
+          1640
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "aeyjcId29YSOUVZC",
+            "name": "Josh"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8c90b441-eb84-4728-a936-a2ca3a6e9e35",
+                "name": "fileId",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "5fc33052-fa0d-4b77-bc6e-1f2a4f7b1745",
+        "name": "File ID",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          400,
+          1640
+        ]
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1Td5L65JJzDu4UilssZykBnB7pUvJdgp8",
+            "mode": "list",
+            "cachedResultName": "RAG",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1Td5L65JJzDu4UilssZykBnB7pUvJdgp8"
+          },
+          "event": "fileCreated",
+          "options": {}
+        },
+        "id": "c71f8bc1-67fb-4f71-9f02-e3e9d1f6cafb",
+        "name": "Created File",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          180,
+          1580
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "aeyjcId29YSOUVZC",
+            "name": "Josh"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1Td5L65JJzDu4UilssZykBnB7pUvJdgp8",
+            "mode": "list",
+            "cachedResultName": "RAG",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1Td5L65JJzDu4UilssZykBnB7pUvJdgp8"
+          },
+          "event": "fileUpdated",
+          "options": {}
+        },
+        "id": "1ac6f97b-d4da-4ac1-8368-8e3873a5c671",
+        "name": "Updated File",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          180,
+          1760
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "aeyjcId29YSOUVZC",
+            "name": "Josh"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "text-embedding-3-small",
+          "options": {}
+        },
+        "id": "1ed7d308-7cc3-4539-9dc9-541d8db3c78c",
+        "name": "Embeddings OpenAI1",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1,
+        "position": [
+          880,
+          1860
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "cczuLgtfjpcKwH7I",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "chunkSize": 2000,
+          "chunkOverlap": 200,
+          "options": {}
+        },
+        "id": "2e34bc1f-d1fa-4826-8c00-079185c7b1f1",
+        "name": "Recursive Character Text Splitter",
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "typeVersion": 1,
+        "position": [
+          1060,
+          2000
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "b2d92136-19fb-4f87-92cf-78b02f8d47a7",
+        "name": "Default Data Loader",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "typeVersion": 1,
+        "position": [
+          1060,
+          1840
+        ]
+      },
+      {
+        "parameters": {
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "n8n",
+            "mode": "list",
+            "cachedResultName": "n8n"
+          },
+          "options": {
+            "pineconeNamespace": "documents"
+          }
+        },
+        "id": "0a155333-c5f5-4f1b-92f0-dceebdfcb9a1",
+        "name": "Pinecone Vector Store",
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1,
+        "position": [
+          600,
+          1140
+        ],
+        "credentials": {
+          "pineconeApi": {
+            "id": "V0O3akXOpNYHfWth",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "n8n",
+            "mode": "list",
+            "cachedResultName": "n8n"
+          },
+          "options": {
+            "pineconeNamespace": "documents"
+          }
+        },
+        "id": "c9481081-3c64-4ace-98be-1ac8268dda43",
+        "name": "Pinecone Vector Store1",
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1,
+        "position": [
+          980,
+          1640
+        ],
+        "credentials": {
+          "pineconeApi": {
+            "id": "V0O3akXOpNYHfWth",
+            "name": "PineconeApi account"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Postgres Chat Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector Store Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🛠️ Get Calendar Events": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🛠️ Book Calendar Event": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculator": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wikipedia": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "File ID": {
+        "main": [
+          [
+            {
+              "node": "Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Created File": {
+        "main": [
+          [
+            {
+              "node": "File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Updated File": {
+        "main": [
+          [
+            {
+              "node": "File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Doc": {
+        "main": [
+          [
+            {
+              "node": "Pinecone Vector Store1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI1": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store1",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recursive Character Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Default Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Default Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Pinecone Vector Store1",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store": {
+        "ai_vectorStore": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_vectorStore",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "7315bfef-c810-419e-b919-8822141178fc",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+    },
+    "id": "CY6EvXj847BWKkU2",
+    "tags": []
+  }

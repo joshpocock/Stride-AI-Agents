@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "7fb6f8da-0962-4e81-897e-416d46841eb0",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        280,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 🛠️ Create Calendar Event",
+        "height": 258.3606557377049,
+        "width": 753.4847775175649,
+        "color": 4
+      },
+      "id": "37eeaebb-bb0c-4c1a-aeb5-a8db1d666105",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        235,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "a215ea5a-3c40-4b0f-bbaf-d9a7685eb4a8",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        640,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba22eff7-95ab-49b5-ac72-6258a738f190",
+              "name": "response",
+              "value": "={{ $json.data }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7d001259-68b3-491d-bb90-64fcd5f1cd68",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        820,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "josh@executivestride.com",
+          "mode": "list",
+          "cachedResultName": "josh@executivestride.com"
+        },
+        "start": "={{ $json.query.start_time }}",
+        "end": "={{ $json.query.end_time }}",
+        "additionalFields": {
+          "allday": "no",
+          "attendees": [
+            "={{ $json.query.attendees }}"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {}
+          },
+          "description": "={{ $json.query.about }}",
+          "location": "Google Meet",
+          "sendUpdates": "all",
+          "summary": "={{ $json.query.about }}"
+        }
+      },
+      "id": "76bd83ec-d761-4d48-819d-a9a211a4da65",
+      "name": "Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        200
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "x3VxJSjkmIbJR9yk",
+          "name": "Josh ES"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}
