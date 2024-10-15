@@ -166,8 +166,14 @@ class UserInterfaceAgent(Agent):
         scraper_agent = WebScraperAgent()
         scraped_content, structured_content = await scraper_agent.run(url)
         
+        folder_name = create_website_folder(url)
+        
         analyst_agent = AnalystAgent()
         analysis = await analyst_agent.run(json.dumps(structured_content))
+        
+        # Save analysis
+        with open(os.path.join(folder_name, "analysis.md"), "w", encoding="utf-8") as f:
+            f.write(analysis['analysis'])
         
         target_audience = input("Please describe the target audience: ")
         goals = input("Please describe the marketing goals: ")
@@ -175,11 +181,33 @@ class UserInterfaceAgent(Agent):
         campaign_agent = CampaignIdeaAgent()
         campaign_idea = await campaign_agent.run(target_audience, goals)
         
+        # Save campaign idea
+        with open(os.path.join(folder_name, "campaign_idea.md"), "w", encoding="utf-8") as f:
+            f.write(campaign_idea['campaign_idea'])
+        
         copywriter_agent = CopywriterAgent()
         marketing_copy = await copywriter_agent.run(campaign_idea['campaign_idea'])
         
-        # Save all outputs (implementation remains the same)
+        # Save marketing copy
+        with open(os.path.join(folder_name, "marketing_copy.md"), "w", encoding="utf-8") as f:
+            f.write(marketing_copy['copy'])
         
+        # Create and save comprehensive marketing plan
+        marketing_plan = f"""# Comprehensive Marketing Plan
+
+## Website Analysis
+{analysis['analysis']}
+
+## Campaign Idea
+{campaign_idea['campaign_idea']}
+
+## Marketing Copy
+{marketing_copy['copy']}
+"""
+        with open(os.path.join(folder_name, "marketing-plan.md"), "w", encoding="utf-8") as f:
+            f.write(marketing_plan)
+        
+        print(f"All output files have been saved in the '{folder_name}' folder.")
         print("Demo completed. Thank you for using our marketing assistant!")
         print("Thank you for using the Stride Swarm AI Agent - to have our team implement AI agents into your business, book a call at https://executivestride.com/apply")
 
