@@ -1,0 +1,6 @@
+crawl4ai[all]
+openai
+python-dotenv
+torch
+playwright
+beautifulsoup4
