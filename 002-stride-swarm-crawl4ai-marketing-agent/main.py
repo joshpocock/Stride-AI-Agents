@@ -98,7 +98,12 @@ def generate_completion(role, task, content):
             {"role": "user", "content": content}
         ]
     )
-    return response.choices[0].message.content
+    if not response.choices or response.choices[0].message is None:
+        raise ValueError("LLM returned empty or filtered response")
+    text = response.choices[0].message.content
+    if not text:
+        raise ValueError("LLM returned empty or filtered response")
+    return text
 
 # Function to analyze website content
 def analyze_website_content(content):
