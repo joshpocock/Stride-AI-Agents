@@ -55,6 +55,8 @@ class EvalFunction:
     if not completion_result.choices or completion_result.choices[0].message is None:
         raise ValueError("LLM returned empty or filtered response")
     name_extract = completion_result.choices[0].message.content
+    if not name_extract:
+        raise ValueError("LLM returned empty or filtered response")
     print(f"Name extracted: {name_extract}")
     try:
        names = ast.literal_eval(name_extract)
